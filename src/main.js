@@ -21,18 +21,38 @@ const {
   isGitInstalled
 } = require('./extension');
 const { fstat } = require('fs');
+const { SideViewProvider } = require('./sidebarViewProvider');
 
 
 // GLOBALS
 const EXAMPLES_REPO = "https://github.com/makinteract/micropython-examples";
+let sidePanel;
 
-
+// function sideViewSend(msg, params = undefined) {
+//   sidePanel?.sendMessage({ message: msg, params });
+// }
 
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+
+  sidePanel = new SideViewProvider(context.extensionUri);
+  vscode.window.registerWebviewViewProvider(SideViewProvider.viewType, sidePanel);
+
+  // When getting a message from the sidebar
+  sidePanel.onMessageReceived((params) => {
+    const { message } = params;
+    switch (message) {
+      case 'flashMicroPython':
+        console.log('I can flash micropython');
+        break;
+      default:
+        break;
+    }
+  });
+
 
   const init = vscode.commands.registerCommand('extension.init', async function () {
     try {
